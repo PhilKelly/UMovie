@@ -1,0 +1,9 @@
+.navbar .nav li.dropdown.open > .dropdown-toggle {
+    background-color: inherit;
+    color: inherit;
+}
+
+#navbar-avatar {
+    margin-top: -25px;
+    margin-right: 5px;
+}

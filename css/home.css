@@ -1,0 +1,57 @@
+body {
+    padding-bottom: 40px;
+    background-image: url("https://nottingham.ac.uk/news/pressreleases/2011/october/filmreel.jpg");
+    -ms-filter:"progi<d:DXImageTransform.Microsoft.Alpha(Opacity=100,FinishOpacity=78,Style=2)";
+    filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=100,FinishOpacity=78,Style=2);
+}
+
+@media (max-width: 767px) {
+    body{
+        background: url("https://nottingham.ac.uk/news/pressreleases/2011/october/filmreel.jpg") no-repeat center center fixed;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+    }
+}
+
+.form-home {
+    height: 350px;
+    max-width: 500px;
+    padding: 10px 29px 29px;
+    margin: 10px auto 20px;
+    border: 0px solid #e5e5e5;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+    -moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+    box-shadow: 0 1px 2px rgba(0,0,0,.05);
+    background-color: #010B1E;
+    opacity: 0.9;
+}
+
+
+.form-home .form-home-heading{color:#CAE8F7;margin-bottom: 25px;font-size: 23px;font-weight: 400;margin-bottom: 10px;}
+.form-home h1 {
+    color: #4AAAD6;
+}
+.form-home a{color: #4AAAD6;font-weight: 400;font-size: 10px;}
+.form-home input[type="text"],
+.form-home input[type="password"] {font-size: 16px;
+    height: auto;
+    margin-bottom: 15px;
+    padding: 7px 9px;
+    opacity: 0.9;
+    border: 1px solid #28759B;}
+.form-home span { font-size: 13px;color: white;float: right;}
+.form-home label {color: white;}
+.form-home .btn {font-family: inherit;}
+
+.page-header > h1 {
+    color: white;
+}
+
+.page-header > p {
+    color: white;
+}

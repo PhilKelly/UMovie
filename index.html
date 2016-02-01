@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>UMovie</title>
+
+	<link href="lib/css/jkit.css" rel="stylesheet">
+	<link href="lib/css/bootstrap.css" rel="stylesheet">
+	<link href="lib/css/animate.css" rel="stylesheet">
+	<link href="lib/css/app.css" rel="stylesheet">
+	<link href="lib/css/font-awesome.css" rel="stylesheet">
+	<link href="lib/css/bootstrap-responsive.css" rel="stylesheet">
+	<link href="lib/css/awesomplete.css" rel="stylesheet">
+	<link href="css/index.css" rel="stylesheet">
+	<link href="css/navbar.css" rel="stylesheet">
+	<link href="css/movie.css" rel="stylesheet">
+	<link href="css/tvshow.css" rel="stylesheet">
+	<link href="css/watchlist.css" rel="stylesheet">
+	<link href="css/addMovies.css" rel="stylesheet">
+	<link href="css/userprofile.css" rel="stylesheet">
+	<link href="css/useractions.css" rel="stylesheet">
+
+</head>
+<body class="animated fadeInDown">
+
+	<div class="navbar navbar-static-top"></div>
+	<div class="container">
+		<div class="single-movie"></div>
+		<div class="tvshows"></div>
+		<div class="tvshow"></div>
+		<div class="actors"></div>
+		<div class="global-search"></div>
+		<div class="single-actor"></div>
+		<div class="watchlist"></div>
+		<div class="watchlist-movies"></div>
+		<div class="watchlist-add-movie"></div>
+		<div class="movies"></div>
+		<div class="movie-add-watchlist"></div>
+		<div class="user-profile"></div>
+		<div class="user-actions"></div>
+	</div>
+	<div class="modal fade bs-example-modal-lg" id="episodeModal" tabindex="-1" role="dialog" aria-labelledby="episodeModalLabel"></div>
+
+	<script type="text/template" id="navbar-template">
+		<div class="navbar-inner">
+			<div class="container">
+				<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</a>
+				<a href="#/"><h1 class="navbar-title">UMovie</h1></a>
+				<div class="input-append">
+					<input class="span3" id="global-search-text" type="text">
+					<button id="global-search-btn" class="btn btn-primary" type="button"><i class="icon-search"></i></button>
+				</div>
+				<div class="nav-collapse collapse">
+					<ul class="nav pull-left">
+						<li><a href="#tvshows">Tv Show</a></li>
+						<li><a href="#movie">Movie</a></li>
+						<li><a href="#actors">Actor</a></li>
+						<li><a href="#/watchlists">Watchlists</a></li>
+					</ul>
+					<ul class="nav pull-right">
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+								<img id="navbar-avatar" src="http://www.gravatar.com/avatar/<%= emailHash %>?s=50" />
+								<%= currentUserName %>
+								<b class="caret"></b></a>
+							<ul class="dropdown-menu">
+								<li><a href="#users/<%= $.cookie('userId') %>">MyProfile</a></li>
+								<li class="divider"></li>
+								<li><a id="logOut" href="#">Log Out</a></li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</script>
+
+	<script type="text/template" id="tvshows-template">
+		<div class="span12">
+			<h3>Tv Show search</h3>
+
+			<div class="input-append">
+				<input class="span3" id="tvshow-search-text" type="text">
+				<button id="tvshow-search-btn" class="btn btn-primary" type="button"><i class="icon-search"></i></button>
+			</div>
+			<table class="table striped">
+				<tbody>
+				<% _.each(tvshows, function (tvshow) { %>
+				<tr>
+					<td><a href="#/tvshows/<%= tvshow.attributes.collectionId %>"><%= tvshow.attributes.collectionName
+						%></a></td>
+				</tr>
+				<% }); %>
+				</tbody>
+			</table>
+		</div>
+	</script>
+
+	<script type="text/template" id="tvshow-template">
+		<div class="row">
+			<div class="span12">
+				<div class="span5">
+					<div>
+						<img class="cover-image" src="<%= tvshow.artworkUrl100.replace('100x100', '350x350') %>">
+					</div>
+					<ul class="tvshow-basic-informations">
+						<li>
+							<span class="label">Release date </span>
+							<span class="item"><% print(tvshow.releaseDate.substring(0, 10)) %></span>
+						</li>
+						<li>
+							<span class="label">Genre </span>
+							<span class="item"><%= tvshow.primaryGenreName %></span>
+						</li>
+						<li>
+							<a class="itune-badge" href="<%= tvshow.collectionViewUrl %>" style="display:inline-block;overflow:hidden;background:url(http://linkmaker.itunes.apple.com/images/badges/en-us/badge_itunes-lrg.svg) no-repeat;width:165px;height:40px;"></a>
+						</li>
+					</ul>
+				</div>
+				<div class="tvshow-box-info">
+					<h3><%= tvshow.collectionName %></h3>
+					<iframe class="preview" width="350" height="250" src="https://www.youtube.com/embed/<%= youtubeID %>" frameborder="0" allowfullscreen></iframe>
+					<h5>Plot Summary : </h5>
+
+					<p class="tv-show-description"><%= tvshow.longDescription %></p>
+					<div id="episodes"></div>
+				</div>
+			</div>
+		</div>
+	</script>
+
+	<script type="text/template" id="episodes-template">
+		<h4>Episodes</h4>
+		<input class="span3" id="episodes-search-text" type="text">
+		<button id="episodes-search-btn" class="btn btn-primary episode-search" type="button"><i class="icon-search"></i></button>
+		<% if (episodes.length > 0) {%>
+		<ol class="tv-show-episodes">
+			<% _.each(episodes, function (episode) { %>
+			<li>
+				<a class="show-episode" href="#" data-episode-id="<%= episode.attributes.trackId%>"><%=
+					episode.attributes.trackName %></a>
+			</li>
+			<% }); %>
+		</ol>
+		<% } else { %>
+		<p>No episodes found for this request...</p>
+		<% } %>
+	</script>
+
+	<script type="text/template" id="episode-modal-template">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title" id="episodeModalLabel"><%= episode.trackName %></h4>
+				</div>
+				<div class="modal-body">
+					<div>
+						<div class="span5 episode-info"> 
+							<div>
+								<img class="cover-image" src="<%= episode.artworkUrl100.replace('100x100', '500x350') %>">
+							</div>
+							<ul class="movie-basic-informations"> 
+								<li> 
+									<span class="label">Season </span> 
+									<span class="item"><%= episode.collectionName %></span> 
+								</li>
+								 
+								<li> 
+									<span class="label">Length </span> 
+									<span class="item"><%= episode.readableLength %></span> 
+								</li>
+							</ul>
+						</div>
+
+						<div class="movie-box-info"> 
+							<h5>Description </h5>
+							<p class="movie-description"><%= episode.longDescription %></p> 
+							<iframe width="450" height="300" src="https://www.youtube.com/embed/<%= youtubeID %>" frameborder="0" allowfullscreen></iframe>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button id="closeModal" type="button" class="btn btn-default">Close</button>
+				</div>
+			</div>
+		</div>
+	</script>
+	
+	<script type="text/template" id="movies-template">
+		<div class="span12">
+			<h3>Movie search</h3>
+
+			<div class="input-append">
+				<input id="movie-search-text" type="text" class="awesomplete">
+				<button id="movie-search-btn" class="btn btn-primary" type="button"><i class="icon-search"></i></button>
+			</div>
+			<table class="table striped">
+				<tbody>
+				<% _.each(movies, function (movie) { %>
+				<tr>
+					<td><a href="#/movie/<%= movie.attributes.trackId %>"><%= movie.attributes.trackName %></a></td>
+				</tr>
+				<% }); %>
+				</tbody>
+			</table>
+		</div>
+	</script>
+
+	<script type="text/template" id="single-movie-template"> 
+
+	<div class="row"> 
+		<div class="span12"> 
+			<div class="span5"> 
+				<div>
+					<img class="cover-image" src="<%= movie.artworkUrl100.replace('100x100', '350x350') %>">
+				</div>
+				<ul class="movie-basic-informations"> 
+					<li> 
+						<span class="label">Release date </span> 
+						<span class="item"><%= movie.releaseDate %></span> 
+					</li>
+					 
+					<li> 
+						<span class="label">Genre </span> 
+						<span class="item"><%= movie.primaryGenreName %></span> 
+					</li>
+					 
+					<li> 
+						<span class="label">Rating </span> 
+						<span class="item"><%= movie.contentAdvisoryRating %></span> 
+					</li>
+					 
+					<li> 
+						<a class="itune-badge" href="<%= movie.trackViewUrl %>" style="display:inline-block;overflow:hidden;background:url(http://linkmaker.itunes.apple.com/images/badges/en-us/badge_itunes-lrg.svg) no-repeat;width:165px;height:40px;"></a> 
+					</li>
+					 
+				</ul>
+				 
+			</div>
+			 
+			<div class="movie-box-info"> 
+				<h3><%= movie.trackName %></h3> 
+				<iframe width="450" height="300" src="https://www.youtube.com/embed/<%= youtubeID %>" frameborder="0" allowfullscreen></iframe>
+				<h5>Plot Summary : </h5>
+
+				<p class="movie-description"><%= movie.longDescription %></p> 
+				<a href="#/movie/addToWatchlist/<%= movie.trackId %>">Add this movie to a watchlist</a>
+			</div>
+			 
+		</div>
+		 
+	</div> 
+	</script>
+
+	<script type="text/template" id="add-movie-to-watchlist-template">
+		<div class="span12">
+			<h3>Add the movie "<%= movie.trackName %>" to a watchlist :</h3>
+
+			<div id="successAddMovieNotif" class="alert alert-success fade in" hidden="hidden" tabindex="-1">
+				<a href="#" class="close" aria-label="close">&times;</a>
+				<strong>Success!</strong> The movie has been successfully added to the watchlist.
+			</div>
+			<div id="errorAddMovieNotif" class="alert alert-danger fade in" hidden="hidden" tabindex="-1">
+				<a href="#" class="close" aria-label="close">&times;</a>
+				<strong>Oups!</strong> Something went wrong while adding the movie.
+			</div>
+			<table class="table striped">
+				<tbody>
+				<% _.each(watchlists, function (watchlist) { %>
+				<tr>
+					<td><%= watchlist.attributes.name %></td>
+					<td>
+						<button class="movie-add-watchlist btn-mini btn-success pull-right" data-watchlist-id="<%= watchlist.id %>">
+							Add to this watchlist
+						</button>
+					</td>
+				</tr>
+				<% }); %>
+				</tbody>
+			</table>
+		</div>
+	</script>
+
+	<script type="text/template" id="actors-template">
+		<div class="span12">
+			<h3>Actor search</h3>
+
+			<div class="input-append">
+				<input class="span3" id="actor-search-text" type="text">
+				<button id="actor-search-btn" class="btn btn-primary" type="button"><i class="icon-search"></i></button>
+			</div>
+			<table class="table striped">
+				<tbody>
+				<% _.each(actors, function (actor) { %>
+				<tr>
+					<td><a href="#/actors/<%= actor.artistId %>"><%= actor.artistName %></a></td>
+				</tr>
+				<% }); %>
+				</tbody>
+			</table>
+		</div>
+	</script>
+
+	<script type="text/template" id="global-search-template">
+		<div class="span12">
+			<h3>Actors</h3>
+			<% if (actors.length > 0) {%>
+			<table class="table striped">
+				<tbody>
+				<% _.each(actors, function (actor) { %>
+				<tr>
+					<td><a href="#/actors/<%= actor.artistId %>"><%= actor.artistName %></a></td>
+				</tr>
+				<% }); %>
+				</tbody>
+			</table>
+			<% } else { %>
+			<p>No actor found...</p>
+			<% } %>
+
+			<h3>Movie search</h3>
+			<% if (movies.length > 0) {%>
+			<table class="table striped">
+				<tbody>
+				<% _.each(movies, function (movie) { %>
+				<tr>
+					<td><a href="#/movie/<%= movie.attributes.trackId %>"><%= movie.attributes.trackName %></a></td>
+					<td><a href="#/movie/addToWatchlist/<%= movie.trackId %>">Add this movie to a watchlist</a></td>
+				</tr>
+				<% }); %>
+				</tbody>
+			</table>
+			<% } else { %>
+			<p>No movie found...</p>
+			<% } %>
+
+			<h3>User search</h3>
+			<% if (users.length > 0) {%>
+			<table class="table striped">
+				<tbody>
+				<% _.each(users, function (user) { %>
+				<tr>
+					<td><a href="#/users/<%= user.attributes.id %>"><%= user.attributes.name %></a></td>
+					<td><%= user.attributes.email %></a></td>
+					<td><button data-user-id="<%= user.attributes.id %>" class="btn btn-success follow-user-btn" data-following-id="<%= user.id%>" style="<% if (user.id === $.cookie('userId' ) || user.isFollowing)%> display: none<%;%>">
+						Follow
+					</button>
+					<button data-user-id="<%= user.attributes.id %>" class="btn btn-danger remove-following-btn" data-following-id="<%= user.id%>" style="<% if (user.id === $.cookie('userId') || !user.isFollowing)%> display: none<%;%>">
+						UnFollow
+					</button>
+					</td>
+				</tr>
+				<% }); %>
+				</tbody>
+			</table>
+			<% } else { %>
+			<p>No user found...</p>
+			<% } %>
+
+			<h3>Tv Show search</h3>
+			<% if (tvshows.length > 0) {%>
+			<table class="table striped">
+				<tbody>
+				<% _.each(tvshows, function (tvshow) { %>
+				<tr>
+					<td><a href="#/tvshows/<%= tvshow.attributes.collectionId %>"><%= tvshow.attributes.collectionName
+						%></a></td>
+				</tr>
+				<% }); %>
+				</tbody>
+			</table>
+			<% } else { %>
+			<p>No tv show found...</p>
+			<% } %>
+		</div>
+	</script>
+
+	<script type="text/template" id="single-actor-template">
+		<div class="movie-total-wrap">
+			<h3><%= actor.artistName %></h3>
+			<a class="itune-badge" href="<%= actor.artistLinkUrl %>" style="display:inline-block;overflow:hidden;background:url(http://linkmaker.itunes.apple.com/images/badges/en-us/badge_itunes-lrg.svg) no-repeat;width:165px;height:40px;"></a>
+			</br>
+			<span class="label">Genre</span>
+			<span class="item"><%= actor.primaryGenreName %></span>
+		</div>
+		<div class="movie-total-wrap">
+			<h4>Movies</h4>
+			<% _.each(movies, function (movie) { %>
+			<div class="movie clearfix">
+				<div class="movie-wrap-5">
+					<h5><a href="<%= movie.attributes.trackViewUrl %>"><%= movie.attributes.trackName %></a></h5>
+
+					<div class="movie-box" style="background-image: url('<%= movie.attributes.artworkUrl100 %>')"></div>
+					<div class="movie-info">
+						<span class="label">Release date </span>
+						<span class="item"><%= movie.attributes.releaseDate %></span>
+					</div>
+				</div>
+				<div class="movie-wrap-6">
+					<iframe width="450" height="315" src="https://www.youtube.com/embed/<%= movie.attributes.previewUrl %>" frameborder="0" allowfullscreen></iframe>
+				</div>
+			</div>
+			<% }); %>
+		</div>
+	</script>
+	
+	<script type="text/template" id="watchlist-template">
+
+		<div class="span12">
+			<button id="create-watchlist" class="btn btn-success" type="button">Create Watchlist</button>
+			<label>Name: <input id="watchlist-create-name" type="text"/></label>
+			<table class="table striped">
+				<thead>
+				<tr>
+					<th>Name</th>
+					<th>Number of movies</th>
+					<th>Action</th>
+				</tr>
+				</thead>
+				<tbody>
+				<% _.each(watchlists, function (watchlist) { %>
+				<tr>
+					<td>
+						<input class="edit-watchlist-name" type="text" value="<%= watchlist.attributes.name %>" data-watchlist-id="<%= watchlist.attributes.id%>"/>
+					</td>
+					<td><%= watchlist.attributes.movies.length %></td>
+					<td>
+						<a href="#/watchlist/<%= watchlist.attributes.id %>/movies">Show movies</a>
+						<button class="delete-watchlist btn btn-danger" data-watchlist-id="<%= watchlist.attributes.id%>">
+							Delete Watchlist
+						</button>
+					</td>
+				</tr>
+				<% }); %>
+				</tbody>
+			</table>
+		</div>
+	</script>
+
+	<script type="text/template" id="watchlist-movies-template">
+		<div class="span12">
+			<h2><%= watchlist.name %></h2>
+			<a href="#/watchlist/<%= watchlist.id %>/addMovies" role="button" class="add-movie btn btn-success">Add
+				movies to this watchlist</a>
+			<ul class="thumbnails">
+				<% _.each(watchlist.movies, function (movie) { %>
+				<li class="span2">
+					<div class="thumbnail">
+						<div class="cover-box" style="background-image: url('<%= movie.artworkUrl100.replace('100x100','300x300') %>')"></div>
+					</div>
+					<div class="caption">
+						<h6>
+							<a href="#"><%= movie.trackName %></a>
+						</h6>
+					</div>
+					<button class="movie-remove btn btn-danger" data-movie-id="<%= movie.trackId %>">Remove from
+						watchlist
+					</button>
+				</li>
+				<% }); %>
+			</ul>
+		</div>
+	</script>
+
+	<script type="text/template" id="add-movie-template">
+		<div class="span12">
+			<h2>Add movies to </h2>
+
+			<h3><%= watchlist.name %></h3>
+
+			<div id="successAddMovieNotif" class="alert alert-success fade in" hidden="hidden" tabindex="-1">
+				<a href="#" class="close" aria-label="close">&times;</a>
+				<strong>Success!</strong> The movie has been successfully added to the watchlist.
+			</div>
+			<div id="errorAddMovieNotif" class="alert alert-danger fade in" hidden="hidden" tabindex="-1">
+				<a href="#" class="close" aria-label="close">&times;</a>
+				<strong>Oups!</strong> Something went wrong while adding the movie.
+			</div>
+			<a href="#/watchlist/<%= watchlist.id %>/movies">Return to watchlist</a>
+
+			<div class="span12">
+				<div class="input-append">
+					<label for="movie-search-text">Search a movie</label>
+					<input class="span3" id="movie-search-text" type="text">
+					<button id="movie-search-btn" class="btn btn-primary" type="button"><i class="icon-search"></i>
+					</button>
+				</div>
+				<% if (movies.length > 0) {%>
+				<div class="accordion" id="moviesSearchAccordion">
+					<% _.each(movies, function (movie) { %>
+					<div class="accordion-group">
+						<div class="accordion-heading">
+							<a class="accordion-toggle" data-toggle="collapse" data-parent="#moviesSearchAccordion" href="#<%= movie.attributes.trackId%>">
+								<%= movie.attributes.trackName%>
+								<button class="accordion-movie-add btn btn-mini btn-success pull-right" data-movie-id="<%= movie.attributes.trackId%>">
+									Add this movie to watchlist
+								</button>
+							</a>
+						</div>
+						<div id="<%= movie.attributes.trackId%>" class="accordion-body collapse">
+							<div class="accordion-inner">
+								<ul class="movie-basic-informations">
+									<li>
+										<span class="label">Release date </span>
+										<span class="item"><%= movie.attributes.releaseDate.substring(0, movie.attributes.releaseDate.indexOf('T')) %></span>
+									</li>
+									<li>
+										<span class="label">Genre </span>
+										<span class="item"><%= movie.attributes.primaryGenreName%></span>
+									</li>
+									<li>
+										<span class="label">Artist </span>
+										<span class="item"><%= movie.attributes.artistName%></span>
+									</li>
+									<li>
+										<span class="label">Description</span>
+
+										<p align="justify"><%= movie.attributes.longDescription%></p>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<% }); %>
+				</div>
+				<% } else { %>
+				<p>No movies found...</p>
+				<% } %>
+			</div>
+		</div>
+	</script>
+
+	<script type="text/template" id="user-profile-template"> 
+	<div class="row"> 
+		<div class="span12"> 
+
+			<div class="current-user-box-info"> 
+				<img class="cover-image" src="http://www.gravatar.com/avatar/<%= emailHash %>?s=150">
+
+				<div class="user-info">
+					<h3><%= user.name %></h3>
+					 <h5><%= user.email %></h5>
+					<button id="follow-user-btn" class="btn btn-success" data-following-id="<%= user.id%>" style="<% if (user.id === $.cookie('userId' ) || isFollowing)%> display: none<%;%>">
+						Follow
+					</button>
+					<button id="remove-following-btn" class="btn btn-danger" data-following-id="<%= user.id%>" style="<% if (user.id === $.cookie('userId') || !isFollowing)%> display: none<%;%>">
+						UnFollow
+					</button>
+				</div>
+
+			</div>
+			<div id= "user-navbar"class="navbar navbar-static-top">
+				<div class="navbar-inner">
+					<div class="container">
+						<ul class="nav pull-left">
+							<li><a href="#users/<%= user.id%>/watchlists">Watchlists</a></li>
+							<li><a href="#users/<%= user.id%>/following">Friends</a></li>
+							<li><a href="#users/<%= user.id%>/search">Find users</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div> 
+
+	</script>
+
+	<script type="text/template" id="user-watchlist-template"> 
+	<div class="row">
+		<div class="span12"> 
+			<table class="table striped">
+				<thead>
+				<tr>
+					<th>Name</th>
+					<th>Number of movies</th>
+					<th>Action</th>
+				</tr>
+				</thead>
+				<tbody>
+				<% _.each(watchlists, function (watchlist) { %>
+				<tr>
+					<td><%= watchlist.attributes.name %></td>
+					<td><%= watchlist.attributes.movies.length %></td>
+					<td>
+						<a href="#/watchlist/<%= watchlist.attributes.id %>/movies">Show movies</a>
+						<button class="delete-watchlist btn btn-danger" data-watchlist-id="<%= watchlist.attributes.id%>" style="<% if (userId !== $.cookie('userId'))%> display: none<%;%>">
+							Delete Watchlist
+						</button>
+					</td>
+				</tr>
+				<% }); %>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	</script>
+
+	<script type="text/template" id="user-following-template">
+		<div class="user-following">
+			<div class="row">
+				<div class="span12"> 
+					<table class="table striped">
+						<thead>
+						<tr>
+							<th>Name</th>
+							<th>Email</th>
+							<th style="<% if (user.id !== $.cookie('userId'))%> display: none<%;%>">Action</th>
+						</tr>
+						</thead>
+						<tbody>
+						<% _.each(user.following, function (following) { %>
+						<tr>
+							<td><%= following.name %></td>
+							<td><%= following.email %></td>
+							<td style="<% if (user.id !== $.cookie('userId'))%> display: none<%;%>">
+								<button class="remove-following btn btn-danger" data-following-id="<%= following.id%>">
+									UnFollow
+								</button>
+							</td>
+						</tr>
+						<% }); %>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+
+	</script>
+	 
+	<script type="text/template" id="user-search-template"> 
+	<div class="row">
+		<div class="span12"> 
+			<div class="input-append">
+				<input class="span3" id="user-search-text" type="text">
+				<button id="user-search-btn" class="btn btn-primary" type="button"><i class="icon-search"></i></button>
+			</div>
+			<% if (users.length > 0) {%>
+			<table class="table striped">
+				<tbody>
+				<% _.each(users, function (user) { %>
+				<tr>
+					<td><a href="#/users/<%= user.attributes.id %>"><%= user.attributes.name %></a></td>
+					<td><%= user.attributes.email %></a></td>
+				</tr>
+				<% }); %>
+				</tbody>
+			</table>
+			<% } else { %>
+			<p>No user found...</p>
+			<% } %>
+		</div>
+	</div>
+	</script>
+
+
+	<script src="lib/js/jquery.js"></script>
+	<script src="lib/js/bootstrap.js"></script>
+	<script src="lib/js/jquery.jkit.1.1.10.js"></script>
+	<script src="lib/js/jquery.easing.1.3.js"></script>
+	<script src="lib/js/jquery.cookie.js"></script>
+	<script src="lib/js/awesomplete.js"></script>
+	<script src="js/safeEntrance.js"></script>
+	<script src="lib/js/underscore-min.js"></script>
+	<script src="lib/js/backbone-min.js"></script>
+	<script src="lib/js/md5.min.js"></script>
+	<script src="js/UI/menuBehavior.js"></script>
+	<script src="js/search.js"></script>
+	<script src="https://apis.google.com/js/client.js?onload=gAPIOnLoadCallback"></script>
+
+	<script src="js/backboneSync.js"></script>
+
+	<script src="js/models/tvshow.js"></script>
+	<script src="js/models/tvshowEpisode.js"></script>
+	<script src="js/models/owner.js"></script>
+	<script src="js/models/movie.js"></script>
+	<script src="js/collections/movies.js"></script>
+	<script src="js/collections/watchlistMovies.js"></script>
+	<script src="js/models/watchlist.js"></script>
+	<script src="js/collections/watchlists.js"></script>
+	<script src="js/models/watchlist.js"></script>
+	<script src="js/models/watchlistMovie.js"></script>
+	<script src="js/models/actor.js"></script>
+	<script src="js/models/user.js"></script>
+	<script src="js/collections/users.js"></script>
+	<script src="js/models/following.js"></script>
+
+	<script src="js/collections/tvshows.js"></script>
+	<script src="js/collections/tvshowEpisodes.js"></script>
+	<script src="js/collections/actorMovies.js"></script>
+	<script src="js/collections/actors.js"></script>
+	<script src="js/collections/watchlists.js"></script>
+	<script src="js/collections/moviesSearch.js"></script>
+
+	<script src="js/views/episodes-view.js"></script>
+	<script src="js/views/episode-modal-view.js"></script>
+	<script src="js/views/tvshows-view.js"></script>
+	<script src="js/views/tvshow-view.js"></script>
+	<script src="js/views/watchlist-movies-view.js"></script>
+	<script src="js/views/watchlist-view.js"></script>
+	<script src="js/views/add-movie-view.js"></script>
+	<script src="js/views/actors-view.js"></script>
+	<script src="js/views/single-actor-view.js"></script>
+	<script src="js/views/global-search-view.js"></script>
+	<script src="js/views/nav-bar-view.js"></script>
+	<script src="js/views/movies-view.js"></script>
+	<script src="js/views/add-movie-to-watchlist-view.js"></script>
+	<script src="js/views/single-movie-view.js"></script>
+	<script src="js/views/user-profile-view.js"></script>
+	<script src="js/views/user-watchlists-view.js"></script>
+	<script src="js/views/user-following-view.js"></script>
+	<script src="js/views/users-search-view.js"></script>
+
+	<script src="js/app.js"></script>
+
+</body>
+</html>

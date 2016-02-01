@@ -1,0 +1,112 @@
+.tvshow .span12 {
+    position: relative;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+
+.tvshow .span5 {
+    display: inline-block;
+    max-width: 25%;
+
+}
+
+.tvshow h3 {
+    color: #0088cc;
+
+}
+
+.tvshow-basic-informations {
+    list-style: none;
+    margin: 15px;
+    float: left;
+}
+
+.tvshow iframe {
+    min-width: 100%;
+}
+
+.tvshow .cover-image {
+    border: 1px solid black;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    max-width: 85%;
+}
+
+.tvshow li .itune-badge {
+    margin-top: 20px;
+}
+
+.tvshow-basic-informations .img {
+    margin: 10px;
+    min-height: 100px;
+    min-width: 100px;
+    max-height: 100%;
+    max-width: 100%;
+    float: right;
+    display: inline-block;
+}
+
+.tvshow .preview {
+    max-height: 100%;
+    max-width: 100%;
+}
+
+.tvshow-box-info {
+    display: inline-block;
+    float: left;
+    max-width: 70%;
+    text-align: justify;
+}
+
+@media (max-width: 1200px) and (min-width: 768px) {
+    .tvshow .span5{
+        max-width: 25%;
+    }
+
+    .tvshow .tvshow-box-info{
+        padding-left: 5%;
+        max-width: 65%;
+
+    }
+
+}
+
+@media (max-width: 768px) and (min-width: 0px) {
+    .tvshow .span5{
+        text-align: center;
+        max-width: 100%;
+        margin: 0 auto;
+        display: block;
+    }
+
+    .tvshow .tvshow-box-info{
+        max-width: 100%;
+
+    }
+
+    .tvshow .cover-image {
+        margin: 0 auto;
+        display: block;
+    }
+
+    .tvshow-basic-informations {
+        min-width: 100%;
+        margin: 0 auto;
+        display: block;
+    }
+
+}
+
+.episode-search{
+    margin-bottom: 10px;
+}
+
+.episode-info {
+    margin-left: 0px;
+}

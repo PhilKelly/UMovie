@@ -1,0 +1,13 @@
+.user-actions .span12  {
+     margin-top: 0;
+     padding-top: 0;
+}
+
+.user-actions .user-following{
+    padding-top: 20px ;
+    min-width: 100%;
+}
+
+.user-actions .input-append{
+    margin-top: 5px;
+}
